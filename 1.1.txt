@@ -1,0 +1,225 @@
+1.	Merge on single or multi attributes
+
+import pandas as pd
+df1 = pd.read_csv("df1.csv")
+df2 = pd.read_csv("df2.csv")
+
+merged_df = pd.merge(
+    df1, df2,
+    on=['latitude', 'housing_median_age'],
+    how='outer',
+    suffixes=('_df1', '_df2')
+)
+
+merged_df.fillna("Unknown", inplace=True)
+print(merged_df.head(10))
+
+
+2.	Types of attributes
+
+import pandas as pd
+df = pd.read_csv("data.csv")
+
+numeric = df.select_dtypes(include=['number']).columns.tolist()  
+nominal = df.select_dtypes(include=['object', 'category']).columns.tolist()  
+ordinal_columns = ['your_ordinal_column_here']  
+ordinal = [col for col in nominal if col in ordinal_columns]
+nominal = [col for col in nominal if col not in ordinal_columns]
+
+print("Nominal Attributes: ", nominal)
+print("Ordinal Attributes: ", ordinal)
+print("Numeric Attributes: ", numeric)
+
+
+3.	Stratified sampling
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+df = pd.read_csv('data.csv')
+
+attribute = 'column_to_stratify'
+_, stratified_sample = train_test_split(df, test_size=0.2, stratify=df[attribute], random_state=42)
+
+print("\nStratified Sample:\n", stratified_sample)
+
+
+4.	Min-Max normalization
+
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.read_csv('data.csv')
+scaler = MinMaxScaler()
+
+numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
+df.to_csv('normalized_california_housing.csv', index=False)
+print(df.head())
+
+
+5.	Histogram of numeric columns
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv("data.csv")
+
+sns.set_style("whitegrid")
+df.select_dtypes(include=['number']).plot(
+    kind='hist', bins=30, alpha=0.5, figsize=(12, 6), legend=True
+)
+plt.title("Histogram of Numeric Features")
+plt.xlabel("Value")
+plt.ylabel("Frequency")
+plt.show()
+
+
+6.	Cleaning and Handling missing data
+
+import pandas as pd
+df = pd.read_csv('data.csv')
+
+for column in df.columns:
+    if df[column].dtype == 'object':  
+        df[column].fillna(df[column].mode()[0], inplace=True)  # Fill with mode
+    else:  
+        df[column].fillna(df[column].mean(), inplace=True)  # Fill with mean
+df.drop_duplicates(inplace=True)
+
+print(df.head())
+
+
+7.	Smoothing by bins or mean
+
+import pandas as pd
+df = pd.read_csv('data.csv')
+column_to_smooth = 'example_attribute'
+
+df = df.sort_values(by=column_to_smooth).reset_index(drop=True)
+num_bins = 5
+df['bin'] = pd.cut(df[column_to_smooth], bins=num_bins)
+df['smoothed_income'] = df.groupby('bin')[column_to_smooth].transform('mean')
+
+print(df[[column_to_smooth, 'bin', 'smoothed_income']].head(10))
+
+
+8.	Naïve Bayes classification
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report
+data = pd.read_csv("data.csv")
+
+for column in data.columns:
+    if data[column].dtype == 'object':
+        data[column].fillna(data[column].mode()[0], inplace=True)
+    else:
+        data[column].fillna(data[column].median(), inplace=True)
+
+for column in df.select_dtypes(include='object').columns:
+    df[column] = LabelEncoder().fit_transform(df[column])
+
+X = data.drop(columns='type')
+y = data['type']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Class Prior Probabilities:", model.class_prior_)
+print("\nFeature Means per Class:\n", model.theta_)
+
+
+
+
+
+9.	Decision tree classification
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report
+import matplotlib.pyplot as plt
+data = pd.read_csv(".csv")
+
+for column in data.columns:
+    if data[column].dtype == 'object':
+        data[column].fillna(data[column].mode()[0], inplace=True)
+    else:
+        data[column].fillna(data[column].median(), inplace=True)
+for column in df.select_dtypes(include='object').columns:
+    df[column] = LabelEncoder().fit_transform(df[column])
+
+X = data.drop(columns='type')
+y = data['type']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = DecisionTreeClassifier(max_depth=3, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+plt.figure(figsize=(16, 8))
+plot_tree(model, feature_names=X.columns, class_names=True, filled=True, rounded=True)
+plt.title("Decision Tree")
+plt.show()
+
+
+10.	K-Means clustering
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+df = pd.read_csv('data.csv')
+
+for column in data.columns:
+    if data[column].dtype == 'object':
+        data[column].fillna(data[column].mode()[0], inplace=True)
+    else:
+        data[column].fillna(data[column].median(), inplace=True)
+
+for column in df.select_dtypes(include='object').columns:
+    df[column] = LabelEncoder().fit_transform(df[column])
+
+num_clusters = 2
+kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+df['Cluster'] = kmeans.fit_predict(df)
+plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=df['Cluster'], cmap='viridis')
+plt.xlabel(df.columns[0])
+plt.ylabel(df.columns[1])
+plt.title("K-Means Clustering")
+plt.show()
+print(df.head())
+
+
+11.	K-Medoids clustering
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn_extra.cluster import KMedoids
+import matplotlib.pyplot as plt
+df = pd.read_csv('data.csv')
+
+for column in data.columns:
+    if data[column].dtype == 'object':
+        data[column].fillna(data[column].mode()[0], inplace=True)
+    else:
+        data[column].fillna(data[column].median(), inplace=True)
+
+for column in df.select_dtypes(include='object').columns:
+    df[column] = LabelEncoder().fit_transform(df[column])
+
+num_clusters = 2
+kmedoids = KMedoids(n_clusters=num_clusters, random_state=42)
+df['Cluster'] = kmedoids.fit_predict(df)
+plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=df['Cluster'], cmap='viridis')
+plt.xlabel(df.columns[0])
+plt.ylabel(df.columns[1])
+plt.title("K-Medoids Clustering")
+plt.show()
+print(df.head())
